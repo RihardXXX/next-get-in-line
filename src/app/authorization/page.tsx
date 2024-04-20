@@ -6,8 +6,8 @@ export const metadata: Metadata = {
 };
 export default function Authorization() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="min-h-screen pb-20 overflow-auto">
       <h1>Авторизация</h1>
-    </div>
+    </main>
   );
 }

@@ -5,9 +5,10 @@ export const metadata: Metadata = {
   description: "Страница регистрации",
 };
 export default function Registration() {
+  "use client";
   return (
-    <div className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="min-h-screen pb-20 overflow-auto">
       <h1>Регистрация</h1>
-    </div>
+    </main>
   );
 }

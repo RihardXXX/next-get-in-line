@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="min-h-screen pb-20 overflow-auto">
       <h1>Домашняя страница</h1>
     </main>
   );
