@@ -1,11 +1,11 @@
-import { Metadata } from 'next';
+import {Metadata} from 'next';
 
 export const metadata: Metadata = {
-    title: 'Личный кабинет',
+    title: 'о нас',
+    description: 'страница о нас',
 };
 
-
-export default function RegistrationLayout({
+export default function MarketingLayout({
     children, // will be a page or nested layout
 }: {
     children: React.ReactNode
@@ -15,7 +15,7 @@ export default function RegistrationLayout({
             {children}
             {/* Include shared UI here e.g. a header or sidebar */}
             <nav>
-                navigation personal
+                about
             </nav>
         </section>
     );

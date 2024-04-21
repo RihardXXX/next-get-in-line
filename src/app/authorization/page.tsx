@@ -1,13 +1,14 @@
-import { Metadata } from "next";
+import { Metadata } from 'next';
+import Wrap from '@/components/base/wrap';
 
 export const metadata: Metadata = {
-  title: "Авторизация",
-  description: "Страница авторизации",
+    title: 'Авторизация',
+    description: 'Страница авторизации',
 };
 export default function Authorization() {
-  return (
-    <main className="min-h-screen pb-20 overflow-auto">
-      <h1>Авторизация</h1>
-    </main>
-  );
+    return (
+        <Wrap>
+            <h1>Авторизация</h1>
+        </Wrap>
+    );
 }
