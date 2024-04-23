@@ -1,0 +1,32 @@
+/* Media queries mixins */
+
+@mixin respond-to($name) {
+  $max: map-get($breakpoints, $name);
+
+  @if $max {
+    @media only screen and (max-width: $max) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+/* Adds mixins */
+
+/* Fonts */
+
+@mixin default-scrollbar() {
+  &::-webkit-scrollbar {
+    width: 0.4rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    //background-color: $gray-100;
+    border-radius: 2px;
+  }
+}

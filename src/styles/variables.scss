@@ -1,0 +1,40 @@
+/*  Fonts */
+$base-font-size: 10px;
+
+/* Colors */
+$black: #0b0b0d;
+$white: #fff;
+
+/* Grid */
+
+//$offset: 4px;
+//$header-h: 7.9rem;
+//$header-h-tablet: 6.4rem;
+//$footer-h-tablet: 7.8rem;
+
+/* Breakpoints */
+
+$breakpoints: (
+        mobile: 720px,
+        tablet: 1024px,
+        laptop: 1440px,
+        desktop: 999999px
+);
+
+/* Spacing */
+
+//$container-width: 130.8rem;
+//$full-view: calc(var(--vw, 1vw) * 100);
+//$tablet-padding: 2rem;
+//$mobile-padding: 2rem;
+//$exact-full-height: calc(var(--vh, 1vh) * 100);
+
+/* Transitions */
+//$default-transition: 0.3s ease-in-out;
+//$fast-transition: 0.2s ease-in-out;
+//$bezier: cubic-bezier(0.25, 0.74, 0.22, 0.99);
+//$bezier-second: cubic-bezier(0.25, 0.1, 0.25, 1);
+//$text-bezier: cubic-bezier(0.4, 0, 0, 1);
+//$apple-cubic: cubic-bezier(0.165, 0.84, 0.44, 1);
+//$popup-out-bezier: cubic-bezier(0.47, 0.04, 0.5, -0.6);
+//$popup-in-bezier: cubic-bezier(0.25, 0.74, 0.22, 0.99);
