@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "eslint --fix src/"
+    "sl:fix": "npx stylelint \"**/*.{css,scss}\" --fix\n",
+    "lint:fix": "eslint --fix src/",
+    "format": "npm run lint:fix && npm run sl:fix"
   },
   "dependencies": {
     "next": "14.2.2",
@@ -22,6 +24,12 @@
     "eslint-config-next": "14.2.2",
     "postcss": "^8",
     "sass": "^1.75.0",
+    "stylelint": "^16.4.0",
+    "stylelint-config-css-modules": "^4.4.0",
+    "stylelint-config-standard": "^36.0.0",
+    "stylelint-config-standard-scss": "^13.1.0",
+    "stylelint-order": "^6.0.4",
+    "stylelint-scss": "^6.2.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

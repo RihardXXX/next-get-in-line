@@ -1,0 +1,39 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-css-modules",
+    "stylelint-config-standard-scss"
+  ],
+  "plugins": [
+    "stylelint-scss",
+    "stylelint-order"
+  ],
+  "rules": {
+    "scss/double-slash-comment-whitespace-inside": [
+      "never"
+    ],
+    "no-invalid-double-slash-comments": true,
+    "property-no-vendor-prefix": [
+      true,
+      {
+        "severity": "warning",
+        "ignoreProperties": ["-webkit-appearance", "-moz-appearance"]
+      }
+    ],
+    "scss/at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["tailwind"]
+      }
+    ],
+    "at-rule-no-unknown": null,
+    "order/order": [
+      "custom-properties",
+      "declarations"
+    ],
+    "order/properties-order": [
+      "width",
+      "height"
+    ]
+  }
+}
