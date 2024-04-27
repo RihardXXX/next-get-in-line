@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import {Button} from '@nextui-org/react';
 import Wrap from '@/components/base/wrap';
 
 // получение данных
@@ -37,6 +38,9 @@ export default function Home() {
     return (
         <Wrap>
             <h1>Домашняя страница</h1>
+            <Button color="primary">
+                Button
+            </Button>
         </Wrap>
     );
 }

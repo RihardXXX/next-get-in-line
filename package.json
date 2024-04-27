@@ -12,6 +12,8 @@
     "format": "npm run lint:fix && npm run sl:fix"
   },
   "dependencies": {
+    "@nextui-org/react": "^2.3.6",
+    "framer-motion": "^11.1.7",
     "next": "14.2.2",
     "react": "^18",
     "react-dom": "^18"
