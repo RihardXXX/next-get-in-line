@@ -7,7 +7,7 @@ export default function Wrap({
 }>) {
 
     return (
-        <main className="min-h-screen pb-20 overflow-auto">
+        <main className="min-h-screen pb-20 overflow-auto bg-slate-200">
             { children }
         </main>
     );
