@@ -1,5 +1,4 @@
-
-import Wrap from '@/components/base/wrap';
+import Wrap from "@/components/base/wrap";
 
 export default function UserDetail({ params }: { params: { slug: string } }) {
     // если статической генерации приложения заранее хотим генерировать маршруты

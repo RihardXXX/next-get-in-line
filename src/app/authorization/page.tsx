@@ -1,9 +1,9 @@
-import { Metadata } from 'next';
-import Wrap from '@/components/base/wrap';
+import { Metadata } from "next";
+import Wrap from "@/components/base/wrap";
 
 export const metadata: Metadata = {
-    title: 'Авторизация',
-    description: 'Страница авторизации',
+    title: "Авторизация",
+    description: "Страница авторизации",
 };
 export default function Authorization() {
     return (
