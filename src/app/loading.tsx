@@ -1,4 +1,4 @@
-import { CircularProgress } from "@nextui-org/react";
+import { CircularProgress } from '@nextui-org/react';
 export default function Loading() {
     return (
         <div className="flex min-h-screen flex-col items-center justify-between p-24">

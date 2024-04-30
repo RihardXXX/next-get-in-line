@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 export function middlewareExample(request: NextRequest) {
     // Check the origin from the request
-    console.log("check multi-middleware");
+    console.log('check multi-middleware');
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: "/",
+    matcher: '/',
 };
 
 // код для корсов бэка next

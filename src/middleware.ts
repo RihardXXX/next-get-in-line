@@ -1,4 +1,4 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, NextRequest } from 'next/server';
 // import { authenticate } from 'auth-provider'
 // import { useAuthorization } from '@/hooks/useAuthorization';
 
@@ -6,7 +6,7 @@ import { NextResponse, NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
     // const isAuthenticated = authenticate(request)
-    console.log("middleware");
+    console.log('middleware');
 
     // начале добавить корсы для запросов, чтобы запросы шли только в рамкх текущего источника
 
@@ -20,9 +20,9 @@ export function middleware(request: NextRequest) {
     }
 
     // Redirect to login page if not authenticated
-    return NextResponse.redirect(new URL("/authorization", request.url));
+    return NextResponse.redirect(new URL('/authorization', request.url));
 }
 
 export const config = {
-    matcher: "/personal/:path*",
+    matcher: '/personal/:path*',
 };

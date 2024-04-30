@@ -1,7 +1,7 @@
-import { Metadata } from "next";
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: "Личный кабинет",
+    title: 'Личный кабинет',
 };
 
 export default function RegistrationLayout({

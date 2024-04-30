@@ -13,7 +13,10 @@
     "format": "npm run prettier:fix && npm run lint:fix && npm run sl:fix"
   },
   "dependencies": {
+    "@nextui-org/accordion": "^2.0.32",
     "@nextui-org/react": "^2.3.6",
+    "@nextui-org/system": "^2.1.2",
+    "@nextui-org/theme": "^2.2.3",
     "classnames": "^2.5.1",
     "framer-motion": "^11.1.7",
     "next": "14.2.2",

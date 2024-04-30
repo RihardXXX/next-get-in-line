@@ -1,8 +1,8 @@
-import { Metadata } from "next";
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: "о нас",
-    description: "страница о нас",
+    title: 'о нас',
+    description: 'страница о нас',
 };
 
 export default function MarketingLayout({
