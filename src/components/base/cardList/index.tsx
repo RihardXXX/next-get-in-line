@@ -1,4 +1,4 @@
-'use client';
+// 'use client';
 
 import { Card, CardHeader, CardBody, Image } from '@nextui-org/react';
 import React from 'react';
@@ -19,6 +19,9 @@ function CardList({
                 dataLanding.map((card: DataLandingItemInterface, index) => (
                     <Card className="py-4" key={`card${index}`}>
                         <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+                            <div className="mt-0 w-full h-20 text-yellow-400 bg-slate-900 rounded pt-1 pb-1">
+                                {card.icon}
+                            </div>
                             <h4 className="font-bold text-large">
                                 {card.title}
                             </h4>
