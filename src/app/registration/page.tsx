@@ -12,6 +12,7 @@ import {
 } from 'yup';
 import Wrap from '@/components/base/wrap';
 import { useState } from 'react';
+import { authUrls } from '@/api/urls';
 
 interface UserRegisterInterface {
     name: string;
@@ -71,6 +72,8 @@ export default function Registration() {
 
     const registerUser = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        console.log('user');
+        console.log(authUrls.getRegisterUrl());
 
         setErrorsList([]);
         setErrorsType([]);
@@ -99,8 +102,6 @@ export default function Registration() {
 
         setDisabledInput(true);
         // send user for register
-
-        console.log('user');
     };
 
     const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
