@@ -17,17 +17,16 @@
     "@nextui-org/react": "^2.3.6",
     "@nextui-org/system": "^2.1.2",
     "@nextui-org/theme": "^2.2.3",
-    "@tanstack/react-query": "^5.34.1",
     "classnames": "^2.5.1",
     "framer-motion": "^11.1.7",
     "next": "14.2.2",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.2.0",
+    "swr": "^2.2.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {
-    "@tanstack/eslint-plugin-query": "^5.32.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

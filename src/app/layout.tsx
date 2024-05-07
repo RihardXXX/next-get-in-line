@@ -21,7 +21,7 @@ export default function RootLayout({
         <html lang="ru">
             <body className={inter.className}>
                 <Providers>
-                    {children}
+                        { children }
                     <FooterNav />
                 </Providers>
             </body>

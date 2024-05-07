@@ -1,5 +1,6 @@
 'use client';
 import { FormEvent } from 'react';
+import { useMutation } from "@tanstack/react-query";
 import { Input, Chip, Button } from '@nextui-org/react';
 import { FaEye } from 'react-icons/fa';
 import { IoEyeOffSharp } from 'react-icons/io5';
@@ -14,6 +15,7 @@ import Wrap from '@/components/base/wrap';
 import { useState } from 'react';
 import { authUrls } from '@/api/urls';
 
+
 interface UserRegisterInterface {
     name: string;
     email: string;
@@ -23,7 +25,9 @@ interface UserRegisterInterface {
 
 type error = string | undefined;
 
+
 export default function Registration() {
+    console.log('Registration')
     const [isVisiblePassword, setIsVisiblePassword] = useState(false);
     const [disabledInput, setDisabledInput] = useState(false);
     const [errorsList, setErrorsList] = useState([] as Array<string>);
@@ -70,19 +74,40 @@ export default function Registration() {
         inner: ValidationError[];
     }
 
+    const urlRegister = authUrls.getRegisterUrl()
+
+    const fetchRegisterUser = (newUser: UserRegisterInterface) => {
+        return fetch(urlRegister, {
+            method: 'POST',
+            body: JSON.stringify(newUser)
+        })
+    }
+
+    // send data for register
+    // const mutation = useMutation({
+    //     mutationFn: fetchRegisterUser
+    // })
+
+
     const registerUser = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log('user');
-        console.log(authUrls.getRegisterUrl());
 
         setErrorsList([]);
         setErrorsType([]);
 
-        // === validation client ===
+
         try {
+            // === validation client ===
             const user = await userSchema.validate(newUser, {
                 abortEarly: false,
             });
+
+            console.log('user: ', user)
+
+            setDisabledInput(true);
+            // send user for register
+            // const res = await mutation.mutateAsync(user)
+            // console.log('res: ', res)
         } catch (e) {
             // type errors
             const newErrorsType = (e as ValidErrorInterface).inner.map(
@@ -96,12 +121,10 @@ export default function Registration() {
             const newErrorsList =
                 typeof errors === 'string' ? [errors] : errors;
             setErrorsList(newErrorsList);
-            return;
+        } finally {
+            setDisabledInput(false);
         }
         // ==========================
-
-        setDisabledInput(true);
-        // send user for register
     };
 
     const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
