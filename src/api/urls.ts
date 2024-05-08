@@ -6,7 +6,7 @@ class AuthUrls {
     baseUrl: string;
 
     constructor(baseUrl: string) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl + '/auth';
     }
 
     getRegisterUrl(): string {

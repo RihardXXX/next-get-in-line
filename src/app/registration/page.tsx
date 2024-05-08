@@ -1,6 +1,6 @@
 'use client';
 import { FormEvent } from 'react';
-import { useMutation } from "@tanstack/react-query";
+import useSWRMutation from 'swr/mutation';
 import { Input, Chip, Button } from '@nextui-org/react';
 import { FaEye } from 'react-icons/fa';
 import { IoEyeOffSharp } from 'react-icons/io5';
@@ -14,20 +14,12 @@ import {
 import Wrap from '@/components/base/wrap';
 import { useState } from 'react';
 import { authUrls } from '@/api/urls';
-
-
-interface UserRegisterInterface {
-    name: string;
-    email: string;
-    phone?: string;
-    password: string;
-}
+import { UserRegisterInterface } from '@/interfaces/users/UserRegisterInterface';
+import { registerUserFetcher } from '@/api/swr';
 
 type error = string | undefined;
 
-
 export default function Registration() {
-    console.log('Registration')
     const [isVisiblePassword, setIsVisiblePassword] = useState(false);
     const [disabledInput, setDisabledInput] = useState(false);
     const [errorsList, setErrorsList] = useState([] as Array<string>);
@@ -74,20 +66,16 @@ export default function Registration() {
         inner: ValidationError[];
     }
 
-    const urlRegister = authUrls.getRegisterUrl()
-
-    const fetchRegisterUser = (newUser: UserRegisterInterface) => {
-        return fetch(urlRegister, {
-            method: 'POST',
-            body: JSON.stringify(newUser)
-        })
-    }
+    const urlRegister = authUrls.getRegisterUrl();
 
     // send data for register
-    // const mutation = useMutation({
-    //     mutationFn: fetchRegisterUser
-    // })
-
+    // useSWR + мутация-подобное API, но запрос не запускается автоматически.
+    // данные не определены, пока не будет вызван триггер
+    const {
+        data: resRegister,
+        trigger,
+        isMutating,
+    } = useSWRMutation(urlRegister, registerUserFetcher);
 
     const registerUser = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -95,16 +83,19 @@ export default function Registration() {
         setErrorsList([]);
         setErrorsType([]);
 
-
         try {
             // === validation client ===
             const user = await userSchema.validate(newUser, {
                 abortEarly: false,
             });
 
-            console.log('user: ', user)
+            console.log('user: ', user);
 
             setDisabledInput(true);
+
+            await trigger(user);
+            console.log('resRegister: ', resRegister);
+
             // send user for register
             // const res = await mutation.mutateAsync(user)
             // console.log('res: ', res)

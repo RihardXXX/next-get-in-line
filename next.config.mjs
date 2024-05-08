@@ -3,6 +3,8 @@
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
+const isDevelopment = (process.env.NODE_ENV === 'development')
+
 // Получаем путь к текущему файлу
 const __filename = fileURLToPath(import.meta.url);
 // Получаем директорию текущего файла
