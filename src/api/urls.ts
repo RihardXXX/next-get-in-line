@@ -1,6 +1,6 @@
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+// const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
 
-console.log('baseUrl: ', baseUrl);
+// console.log('baseUrl: ', baseUrl);
 
 class AuthUrls {
     baseUrl: string;
@@ -34,4 +34,4 @@ class AuthUrls {
     }
 }
 
-export const authUrls = new AuthUrls(baseUrl);
+export const authUrls = new AuthUrls('/server');

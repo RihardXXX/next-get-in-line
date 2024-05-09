@@ -71,11 +71,10 @@ export default function Registration() {
     // send data for register
     // useSWR + мутация-подобное API, но запрос не запускается автоматически.
     // данные не определены, пока не будет вызван триггер
-    const {
-        data: resRegister,
-        trigger,
-        isMutating,
-    } = useSWRMutation(urlRegister, registerUserFetcher);
+    const { data: resRegister, trigger } = useSWRMutation(
+        urlRegister,
+        registerUserFetcher,
+    );
 
     const registerUser = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -89,29 +88,42 @@ export default function Registration() {
                 abortEarly: false,
             });
 
-            console.log('user: ', user);
-
             setDisabledInput(true);
 
-            await trigger(user);
-            console.log('resRegister: ', resRegister);
-
-            // send user for register
-            // const res = await mutation.mutateAsync(user)
-            // console.log('res: ', res)
+            const res = await trigger(user);
+            console.log('res', res.message);
         } catch (e) {
-            // type errors
-            const newErrorsType = (e as ValidErrorInterface).inner.map(
-                (err: ValidationError) => err.path,
-            );
-            // duplicate name remove
-            setErrorsType(Array.from(new Set(newErrorsType)));
+            console.log(e);
+            console.log(e.inner);
+            // =======
 
-            // message errors
-            const errors = (e as ValidErrorInterface).errors;
-            const newErrorsList =
-                typeof errors === 'string' ? [errors] : errors;
-            setErrorsList(newErrorsList);
+            // for front client validate
+            // отлавливание ошибок валидаци на клиенте
+            if ((e as ValidErrorInterface).inner) {
+                console.log(111);
+                // type errors
+                const newErrorsType = (e as ValidErrorInterface).inner.map(
+                    (err: ValidationError) => err.path,
+                );
+                // duplicate name remove
+                setErrorsType(Array.from(new Set(newErrorsType)));
+
+                // message errors
+                const errors = (e as ValidErrorInterface).errors;
+                const newErrorsList =
+                    typeof errors === 'string' ? [errors] : errors;
+                setErrorsList(newErrorsList);
+
+                return;
+            }
+
+            console.log(222);
+            // отлавливание ошибок валидации на сервере
+            const errorText = (e as Error).message;
+            // for server validate error
+            if (errorText) {
+                setErrorsList([errorText]);
+            }
         } finally {
             setDisabledInput(false);
         }

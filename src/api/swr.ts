@@ -13,16 +13,18 @@ async function registerUserFetcher(
     url: string,
     { arg }: { arg: UserRegisterInterface },
 ) {
-    console.log('url', url);
-    console.log('arg', arg);
-
     const res = await fetch(url, {
         method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify(arg),
     });
 
     if (!res.ok) {
-        throw Error('Error status request');
+        const errorText = await res.json();
+        throw Error(errorText.message);
     }
 
     return res.json();
