@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { authUrls } from '@/api/urls';
 import { UserRegisterInterface } from '@/interfaces/users/UserRegisterInterface';
 import { registerUserFetcher } from '@/api/swr';
+import DeleteBtnForInput from '@/components/ui/DeleteBtnForInput';
 
 type error = string | undefined;
 
@@ -24,6 +25,7 @@ export default function Registration() {
     const [disabledInput, setDisabledInput] = useState(false);
     const [errorsList, setErrorsList] = useState([] as Array<string>);
     const [errorsType, setErrorsType] = useState([] as Array<error>);
+    const [registerSuccess, setRegisterSuccess] = useState(false);
 
     const [newUser, setNewUser] = useState({
         name: '',
@@ -38,6 +40,13 @@ export default function Registration() {
     ) => {
         const value = e.currentTarget.value.trim();
         setNewUser({ ...newUser, [key]: value });
+    };
+
+    const clearInputClickIcon = (key: string) => {
+        setNewUser((newUser) => ({
+            ...newUser,
+            [key]: '',
+        }));
     };
 
     const textRequired = (name: string) => `поле ${name} является обязательным`;
@@ -93,14 +102,11 @@ export default function Registration() {
             const res = await trigger(user);
             console.log('res', res.message);
         } catch (e) {
-            console.log(e);
-            console.log(e.inner);
             // =======
 
             // for front client validate
             // отлавливание ошибок валидаци на клиенте
             if ((e as ValidErrorInterface).inner) {
-                console.log(111);
                 // type errors
                 const newErrorsType = (e as ValidErrorInterface).inner.map(
                     (err: ValidationError) => err.path,
@@ -117,7 +123,6 @@ export default function Registration() {
                 return;
             }
 
-            console.log(222);
             // отлавливание ошибок валидации на сервере
             const errorText = (e as Error).message;
             // for server validate error
@@ -132,6 +137,26 @@ export default function Registration() {
 
     const toggleVisibility = () => setIsVisiblePassword(!isVisiblePassword);
 
+    // если регистрация прошла успешно показываем сообщение это
+    if (registerSuccess) {
+        return (
+            <Wrap>
+                <div className="flex justify-center items-center h-20 bg-zinc-900">
+                    <h1 className="text-2xl font-bold !text-slate-300">
+                        Регистрация
+                    </h1>
+                </div>
+
+                <Chip
+                    className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2"
+                    color="primary"
+                >
+                    Регистрация прошла успешно
+                </Chip>
+            </Wrap>
+        );
+    }
+
     // name, email, phone, password, btn
     return (
         <Wrap>
@@ -141,7 +166,10 @@ export default function Registration() {
                 </h1>
             </div>
 
-            <Chip className="mt-2 ml-2" color="primary">
+            <Chip
+                className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2"
+                color="primary"
+            >
                 Поля со звездочкой обязательны
             </Chip>
 
@@ -155,7 +183,15 @@ export default function Registration() {
                     label="* имя"
                     className="w-full"
                     size="lg"
+                    value={newUser.name}
                     color={errorsType.includes('name') ? 'danger' : undefined}
+                    endContent={
+                        !!newUser.name.length && (
+                            <DeleteBtnForInput
+                                onClick={() => clearInputClickIcon('name')}
+                            />
+                        )
+                    }
                     onInput={(e) => inputHandler(e, 'name')}
                 />
 
@@ -165,7 +201,15 @@ export default function Registration() {
                     label="* почта"
                     className="w-full mt-4"
                     size="lg"
+                    value={newUser.email}
                     color={errorsType.includes('email') ? 'danger' : undefined}
+                    endContent={
+                        !!newUser.email.length && (
+                            <DeleteBtnForInput
+                                onClick={() => clearInputClickIcon('email')}
+                            />
+                        )
+                    }
                     onInput={(e) => inputHandler(e, 'email')}
                 />
 
@@ -175,6 +219,14 @@ export default function Registration() {
                     label="телефон"
                     className="w-full mt-4"
                     size="lg"
+                    value={newUser.phone}
+                    endContent={
+                        !!newUser.phone?.length && (
+                            <DeleteBtnForInput
+                                onClick={() => clearInputClickIcon('phone')}
+                            />
+                        )
+                    }
                     onInput={(e) => inputHandler(e, 'phone')}
                 />
 
@@ -184,6 +236,7 @@ export default function Registration() {
                     label="* пароль"
                     className="w-full mt-4"
                     size="lg"
+                    value={newUser.password}
                     endContent={
                         <button
                             className="focus:outline-none h-full"
