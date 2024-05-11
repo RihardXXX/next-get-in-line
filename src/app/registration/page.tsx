@@ -1,5 +1,5 @@
 'use client';
-import { FormEvent } from 'react';
+import { FormEvent, useEffect, useRef } from 'react';
 import useSWRMutation from 'swr/mutation';
 import { Input, Chip, Button } from '@nextui-org/react';
 import { FaEye } from 'react-icons/fa';
@@ -17,6 +17,7 @@ import { authUrls } from '@/api/urls';
 import { UserRegisterInterface } from '@/interfaces/users/UserRegisterInterface';
 import { registerUserFetcher } from '@/api/swr';
 import DeleteBtnForInput from '@/components/ui/DeleteBtnForInput';
+import { useRouter } from 'next/navigation';
 
 type error = string | undefined;
 
@@ -26,6 +27,8 @@ export default function Registration() {
     const [errorsList, setErrorsList] = useState([] as Array<string>);
     const [errorsType, setErrorsType] = useState([] as Array<error>);
     const [registerSuccess, setRegisterSuccess] = useState(false);
+    const [registerSuccessText, setRegisterSuccessText] = useState('');
+    const [seconds, setSeconds] = useState(20);
 
     const [newUser, setNewUser] = useState({
         name: '',
@@ -33,6 +36,8 @@ export default function Registration() {
         phone: '',
         password: '',
     } as UserRegisterInterface);
+
+    const router = useRouter();
 
     const inputHandler = async (
         e: FormEvent<HTMLInputElement>,
@@ -48,6 +53,33 @@ export default function Registration() {
             [key]: '',
         }));
     };
+
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const startTimer = (delay: number) => {
+        intervalRef.current = setInterval(() => {
+            // сохраняем идентификатор интервала в intervalRef.current
+            setSeconds((prevSeconds) => prevSeconds - 1);
+        }, delay);
+    };
+
+    useEffect(() => {
+        if (registerSuccess) {
+            startTimer(1000); // запускаем таймер при успешной регистрации
+        }
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, [registerSuccess]);
+
+    useEffect(() => {
+        if (seconds === 0) {
+            clearInterval(intervalRef.current!); // очищаем интервал, когда время истекает
+            router.push('/');
+        }
+    }, [seconds, router]);
 
     const textRequired = (name: string) => `поле ${name} является обязательным`;
 
@@ -100,7 +132,9 @@ export default function Registration() {
             setDisabledInput(true);
 
             const res = await trigger(user);
-            console.log('res', res.message);
+
+            setRegisterSuccessText(res.message);
+            setRegisterSuccess(true);
         } catch (e) {
             // =======
 
@@ -148,16 +182,31 @@ export default function Registration() {
                 </div>
 
                 <Chip
-                    className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2"
+                    className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-xl"
                     color="primary"
                 >
                     Регистрация прошла успешно
+                </Chip>
+
+                <Chip
+                    className="mt-8 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-2xl text-wrap h-auto"
+                    color="success"
+                    radius="sm"
+                >
+                    {registerSuccessText}
+                </Chip>
+
+                <Chip
+                    className="mt-8 !static !max-w-full !flex text-center ml-2 mr-2 p-4 text-2xl text-wrap h-auto"
+                    color="warning"
+                >
+                    Через <span className="!font-bold">{seconds}</span> вы
+                    будете перенаправлены на главную страницу
                 </Chip>
             </Wrap>
         );
     }
 
-    // name, email, phone, password, btn
     return (
         <Wrap>
             <div className="flex justify-center items-center h-20 bg-zinc-900">
@@ -167,7 +216,7 @@ export default function Registration() {
             </div>
 
             <Chip
-                className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2"
+                className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-xl"
                 color="primary"
             >
                 Поля со звездочкой обязательны
