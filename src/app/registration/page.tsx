@@ -14,8 +14,8 @@ import {
 import Wrap from '@/components/base/wrap';
 import { useState } from 'react';
 import { authUrls } from '@/api/urls';
-import { UserRegisterInterface } from '@/interfaces/users/UserRegisterInterface';
-import { registerUserFetcher } from '@/api/swr';
+import { UserRegisterInterface } from '@/interfaces/users';
+import { authUserFetcher } from '@/api/swr';
 import DeleteBtnForInput from '@/components/ui/DeleteBtnForInput';
 import { useRouter } from 'next/navigation';
 
@@ -114,7 +114,7 @@ export default function Registration() {
     // данные не определены, пока не будет вызван триггер
     const { data: resRegister, trigger } = useSWRMutation(
         urlRegister,
-        registerUserFetcher,
+        authUserFetcher,
     );
 
     const registerUser = async (event: FormEvent<HTMLFormElement>) => {

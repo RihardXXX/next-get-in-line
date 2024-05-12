@@ -4,3 +4,8 @@ export interface UserRegisterInterface {
     phone?: string;
     password: string;
 }
+
+export interface UserAuthorizationInterface {
+    email: string;
+    password: string;
+}

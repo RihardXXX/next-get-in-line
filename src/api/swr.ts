@@ -1,4 +1,7 @@
-import { UserRegisterInterface } from '@/interfaces/users/UserRegisterInterface';
+import {
+    UserRegisterInterface,
+    UserAuthorizationInterface,
+} from '@/interfaces/users';
 
 const fetcher = (...args: Parameters<typeof fetch>) =>
     fetch(...args).then((res) => {
@@ -9,10 +12,8 @@ const fetcher = (...args: Parameters<typeof fetch>) =>
     }) as Promise<void>;
 
 // fetcher for register user
-async function registerUserFetcher(
-    url: string,
-    { arg }: { arg: UserRegisterInterface },
-) {
+type user = UserAuthorizationInterface | UserRegisterInterface;
+async function authUserFetcher(url: string, { arg }: { arg: user }) {
     const res = await fetch(url, {
         method: 'POST',
         headers: {
@@ -30,4 +31,4 @@ async function registerUserFetcher(
     return res.json();
 }
 
-export { fetcher, registerUserFetcher };
+export { fetcher, authUserFetcher };
