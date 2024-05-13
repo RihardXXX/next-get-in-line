@@ -9,3 +9,8 @@ export interface UserAuthorizationInterface {
     email: string;
     password: string;
 }
+
+export interface UserVerifyOtpInterface {
+    email: string;
+    otp: string | number;
+}
