@@ -4,13 +4,6 @@ import useSWRMutation from 'swr/mutation';
 import { Input, Chip, Button } from '@nextui-org/react';
 import { FaEye } from 'react-icons/fa';
 import { IoEyeOffSharp } from 'react-icons/io5';
-import {
-    object,
-    string,
-    type InferType,
-    ObjectSchema,
-    ValidationError,
-} from 'yup';
 import Wrap from '@/components/base/wrap';
 import { useState } from 'react';
 import { authUrls } from '@/api/urls';
@@ -18,17 +11,22 @@ import { UserRegisterInterface } from '@/interfaces/users';
 import { authUserFetcher } from '@/api/swr';
 import DeleteBtnForInput from '@/components/ui/DeleteBtnForInput';
 import { useRouter } from 'next/navigation';
+import useClientRegisterValidation from '@/validation/useClientRegisterValidation';
+import useErrorCheck from '@/validation/useErrorCheck';
 
 type error = string | undefined;
 
 export default function Registration() {
     const [isVisiblePassword, setIsVisiblePassword] = useState(false);
     const [disabledInput, setDisabledInput] = useState(false);
-    const [errorsList, setErrorsList] = useState([] as Array<string>);
-    const [errorsType, setErrorsType] = useState([] as Array<error>);
     const [registerSuccess, setRegisterSuccess] = useState(false);
     const [registerSuccessText, setRegisterSuccessText] = useState('');
     const [seconds, setSeconds] = useState(20);
+
+    const { userRegisterSchema } = useClientRegisterValidation();
+
+    const { checkError, errorsType, setErrorsType, errorsList, setErrorsList } =
+        useErrorCheck();
 
     const [newUser, setNewUser] = useState({
         name: '',
@@ -81,32 +79,6 @@ export default function Registration() {
         }
     }, [seconds, router]);
 
-    const textRequired = (name: string) => `поле ${name} является обязательным`;
-
-    // схема валидации в библиотеке
-    const userSchema: ObjectSchema<UserRegisterInterface> = object({
-        name: string()
-            .trim()
-            .min(5, 'Ваше имя должно быть больше 5 символов')
-            .required(() => textRequired('имя')),
-        email: string()
-            .trim()
-            .email('неверный формат почты')
-            .required(() => textRequired('почта')),
-        phone: string().optional(),
-        password: string()
-            .min(8, 'пароль должен состоять более 8 символов')
-            .required(() => textRequired('пароль')),
-    });
-
-    type Schema = InferType<typeof userSchema>;
-
-    interface ValidErrorInterface extends Error {
-        errors: string | Array<string>;
-        name: string;
-        inner: ValidationError[];
-    }
-
     const urlRegister = authUrls.getRegisterUrl();
 
     // send data for register
@@ -125,7 +97,7 @@ export default function Registration() {
 
         try {
             // === validation client ===
-            const user = await userSchema.validate(newUser, {
+            const user = await userRegisterSchema.validate(newUser, {
                 abortEarly: false,
             });
 
@@ -136,33 +108,7 @@ export default function Registration() {
             setRegisterSuccessText(res.message);
             setRegisterSuccess(true);
         } catch (e) {
-            // =======
-
-            // for front client validate
-            // отлавливание ошибок валидаци на клиенте
-            if ((e as ValidErrorInterface).inner) {
-                // type errors
-                const newErrorsType = (e as ValidErrorInterface).inner.map(
-                    (err: ValidationError) => err.path,
-                );
-                // duplicate name remove
-                setErrorsType(Array.from(new Set(newErrorsType)));
-
-                // message errors
-                const errors = (e as ValidErrorInterface).errors;
-                const newErrorsList =
-                    typeof errors === 'string' ? [errors] : errors;
-                setErrorsList(newErrorsList);
-
-                return;
-            }
-
-            // отлавливание ошибок валидации на сервере
-            const errorText = (e as Error).message;
-            // for server validate error
-            if (errorText) {
-                setErrorsList([errorText]);
-            }
+            checkError(e);
         } finally {
             setDisabledInput(false);
         }

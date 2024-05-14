@@ -1,16 +1,9 @@
 'use client';
-import { FormEvent, useEffect, useRef } from 'react';
+import { FormEvent, useEffect } from 'react';
 import useSWRMutation from 'swr/mutation';
 import { Input, Chip, Button } from '@nextui-org/react';
 import { FaEye } from 'react-icons/fa';
 import { IoEyeOffSharp } from 'react-icons/io5';
-import {
-    object,
-    string,
-    type InferType,
-    ObjectSchema,
-    ValidationError,
-} from 'yup';
 import Wrap from '@/components/base/wrap';
 import { useState } from 'react';
 import { authUrls } from '@/api/urls';
@@ -21,8 +14,8 @@ import {
 import { authUserFetcher } from '@/api/swr';
 import DeleteBtnForInput from '@/components/ui/DeleteBtnForInput';
 import { useRouter } from 'next/navigation';
-
-type error = string | undefined;
+import useClientLoginValidation from '@/validation/useClientLoginValidation';
+import useErrorCheck from '@/validation/useErrorCheck';
 
 type step = 'first' | 'second' | 'last';
 // first стартовый шаг вводя логина и пароля
@@ -32,13 +25,19 @@ type step = 'first' | 'second' | 'last';
 export default function Registration() {
     const [isVisiblePassword, setIsVisiblePassword] = useState(false);
     const [disabledInput, setDisabledInput] = useState(false);
-    const [errorsList, setErrorsList] = useState([] as Array<string>);
-    const [errorsType, setErrorsType] = useState([] as Array<error>);
     const [step, setStep] = useState<step>('first');
     const [secondStepText, setSecondStepText] = useState('');
 
+    const { userVerifyOtpSchema, userAuthorizationSchema } =
+        useClientLoginValidation();
+
+    const { checkError, errorsType, setErrorsType, errorsList, setErrorsList } =
+        useErrorCheck();
+
+    const router = useRouter();
+
     // first login and password state
-    const [newUser, setNewUser] = useState({
+    const [login, setLogin] = useState({
         email: '',
         password: '',
     } as UserAuthorizationInterface);
@@ -49,14 +48,12 @@ export default function Registration() {
         otp: '',
     } as UserVerifyOtpInterface);
 
-    const router = useRouter();
-
     const inputHandler = async (
         e: FormEvent<HTMLInputElement>,
         key: string,
     ) => {
         const value = e.currentTarget.value.trim();
-        setNewUser({ ...newUser, [key]: value });
+        setLogin({ ...login, [key]: value });
     };
 
     const inputHandlerOtp = (e: FormEvent<HTMLInputElement>) => {
@@ -65,51 +62,22 @@ export default function Registration() {
     };
 
     const clearInputClickIcon = (key: string) => {
-        setNewUser((newUser) => ({
-            ...newUser,
+        setLogin((login) => ({
+            ...login,
             [key]: '',
         }));
     };
 
-    const textRequired = (name: string) => `поле ${name} является обязательным`;
-
-    // схема валидации в библиотеке на первом шаге
-    const userSchema: ObjectSchema<UserAuthorizationInterface> = object({
-        email: string()
-            .trim()
-            .email('неверный формат почты')
-            .required(() => textRequired('почта')),
-        password: string()
-            .min(8, 'пароль должен состоять более 8 символов')
-            .required(() => textRequired('пароль')),
-    });
-
-    // схема валидации в библиотеке на втором шаге
-    const otpUserSchema: ObjectSchema<UserVerifyOtpInterface> = object({
-        email: string()
-            .trim()
-            .email('неверный формат почты')
-            .required(() => textRequired('почта')),
-        otp: string()
-            .min(6, 'пароль одноразовый должен состоять из 6 символов')
-            .required(() => textRequired('пароль')),
-    });
-
-    type Schema = InferType<typeof userSchema>;
-
-    interface ValidErrorInterface extends Error {
-        errors: string | Array<string>;
-        name: string;
-        inner: ValidationError[];
-    }
-
     const urlLogin = authUrls.getLoginUrl();
+    const urlVerify = authUrls.getVerifyUrl();
 
     // send data for register
     // useSWR + мутация-подобное API, но запрос не запускается автоматически.
     // данные не определены, пока не будет вызван триггер
-    const { data: resRegister, trigger } = useSWRMutation(
-        urlLogin,
+    const { trigger: triggerLogin } = useSWRMutation(urlLogin, authUserFetcher);
+
+    const { trigger: triggerVerify } = useSWRMutation(
+        urlVerify,
         authUserFetcher,
     );
 
@@ -121,50 +89,34 @@ export default function Registration() {
 
         try {
             // === validation client ===
-            const user = await userSchema.validate(newUser, {
+            const user = await userAuthorizationSchema.validate(login, {
                 abortEarly: false,
             });
 
             setDisabledInput(true);
-
-            const res = await trigger(user);
+            const res = await triggerLogin(user);
 
             setSecondStepText(res.message);
             setStep('second');
-            localStorage.setItem('email', newUser.email);
+            localStorage.setItem('email', login.email);
         } catch (e) {
-            // =======
-
-            // for front client validate
-            // отлавливание ошибок валидаци на клиенте
-            if ((e as ValidErrorInterface).inner) {
-                // type errors
-                const newErrorsType = (e as ValidErrorInterface).inner.map(
-                    (err: ValidationError) => err.path,
-                );
-                // duplicate name remove
-                setErrorsType(Array.from(new Set(newErrorsType)));
-
-                // message errors
-                const errors = (e as ValidErrorInterface).errors;
-                const newErrorsList =
-                    typeof errors === 'string' ? [errors] : errors;
-                setErrorsList(newErrorsList);
-
-                return;
-            }
-
-            // отлавливание ошибок валидации на сервере
-            const errorText = (e as Error).message;
-            // for server validate error
-            if (errorText) {
-                setErrorsList([errorText]);
-            }
+            checkError(e);
         } finally {
             setDisabledInput(false);
         }
-        // ==========================
     };
+
+    // на втором шаге заполняем поле почты автоматически
+    useEffect(() => {
+        if (step === 'second') {
+            const emailStorage = localStorage.getItem('email') || '';
+
+            setOtpUser((prevOtpUser) => ({
+                ...prevOtpUser,
+                email: login.email || emailStorage,
+            }));
+        }
+    }, [step, login.email]);
 
     const verifyUser = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -172,8 +124,21 @@ export default function Registration() {
         setErrorsList([]);
         setErrorsType([]);
         try {
+            // === validation client ===
+            const newOtpUser = await userVerifyOtpSchema.validate(otpUser, {
+                abortEarly: false,
+            });
+
+            setDisabledInput(true);
+
+            const res = await triggerVerify(newOtpUser);
+
+            setStep('last');
+            router.push('/personal');
         } catch (e) {
+            checkError(e);
         } finally {
+            setDisabledInput(false);
         }
     };
 
@@ -211,14 +176,14 @@ export default function Registration() {
                             label="* почта"
                             className="w-full mt-4"
                             size="lg"
-                            value={newUser.email}
+                            value={login.email}
                             color={
                                 errorsType.includes('email')
                                     ? 'danger'
                                     : undefined
                             }
                             endContent={
-                                !!newUser.email.length && (
+                                !!login.email.length && (
                                     <DeleteBtnForInput
                                         onClick={() =>
                                             clearInputClickIcon('email')
@@ -235,7 +200,7 @@ export default function Registration() {
                             label="* пароль"
                             className="w-full mt-4"
                             size="lg"
-                            value={newUser.password}
+                            value={String(login.password)}
                             endContent={
                                 <>
                                     <button
@@ -249,7 +214,7 @@ export default function Registration() {
                                             <IoEyeOffSharp className="text-2xl text-default-400 pointer-events-none" />
                                         )}
                                     </button>
-                                    {!!newUser.password.length && (
+                                    {!!login.password && (
                                         <DeleteBtnForInput
                                             className="ml-4"
                                             onClick={() =>
@@ -297,7 +262,7 @@ export default function Registration() {
             {step === 'second' && (
                 <>
                     <Chip
-                        className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-xl"
+                        className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-xl text-wrap h-auto"
                         color="primary"
                     >
                         {secondStepText}

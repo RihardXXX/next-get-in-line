@@ -7,7 +7,7 @@ export interface UserRegisterInterface {
 
 export interface UserAuthorizationInterface {
     email: string;
-    password: string;
+    password: string | number;
 }
 
 export interface UserVerifyOtpInterface {
