@@ -16,6 +16,7 @@ import DeleteBtnForInput from '@/components/ui/DeleteBtnForInput';
 import { useRouter } from 'next/navigation';
 import useClientLoginValidation from '@/validation/useClientLoginValidation';
 import useErrorCheck from '@/validation/useErrorCheck';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 type step = 'first' | 'second' | 'last';
 // first стартовый шаг вводя логина и пароля
@@ -35,6 +36,8 @@ export default function Registration() {
         useErrorCheck();
 
     const router = useRouter();
+
+    const { getUserInfo } = useAuthStore();
 
     // first login and password state
     const [login, setLogin] = useState({
@@ -134,6 +137,7 @@ export default function Registration() {
             const res = await triggerVerify(newOtpUser);
 
             setStep('last');
+            await getUserInfo(); // fetch user info if cookie token set backend
             router.push('/personal');
         } catch (e) {
             checkError(e);

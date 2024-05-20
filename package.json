@@ -17,14 +17,17 @@
     "@nextui-org/react": "^2.3.6",
     "@nextui-org/system": "^2.1.2",
     "@nextui-org/theme": "^2.2.3",
+    "@types/js-cookie": "^3.0.6",
     "classnames": "^2.5.1",
     "framer-motion": "^11.1.7",
+    "js-cookie": "^3.0.5",
     "next": "14.2.2",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.2.0",
     "swr": "^2.2.5",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@types/node": "^20",
