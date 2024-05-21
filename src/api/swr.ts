@@ -17,6 +17,7 @@ type user =
     | UserAuthorizationInterface
     | UserRegisterInterface
     | UserVerifyOtpInterface;
+
 async function authUserFetcher(url: string, { arg }: { arg: user }) {
     const res = await fetch(url, {
         method: 'POST',

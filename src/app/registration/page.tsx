@@ -162,7 +162,7 @@ export default function Registration() {
             </div>
 
             <Chip
-                className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-xl"
+                className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6"
                 color="primary"
             >
                 Поля со звездочкой обязательны

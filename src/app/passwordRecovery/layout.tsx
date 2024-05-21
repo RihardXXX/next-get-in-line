@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Авторизация',
-    description: 'Страница авторизации',
+    title: 'Восстановление пароля',
+    description: 'Страница восстановления пароля',
 };
 export default function RootLayout({
     children,

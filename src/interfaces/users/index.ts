@@ -14,3 +14,7 @@ export interface UserVerifyOtpInterface {
     email: string;
     otp: string | number;
 }
+
+export interface PasswordRecoveryInterface {
+    email: string;
+}

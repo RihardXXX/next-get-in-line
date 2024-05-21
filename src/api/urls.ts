@@ -29,6 +29,10 @@ class AuthUrls {
         return this.baseUrl + '/verify';
     }
 
+    getRecoveryPassword(): string {
+        return this.baseUrl + '/recovery-password';
+    }
+
     getConfirmUrl(confirmationCode: string): string {
         return this.baseUrl + `/confirm/${confirmationCode}`;
     }

@@ -84,11 +84,15 @@ export default function Registration() {
         authUserFetcher,
     );
 
+    const resetErrors = () => {
+        setErrorsList([]);
+        setErrorsType([]);
+    };
+
     const loginUser = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        setErrorsList([]);
-        setErrorsType([]);
+        resetErrors();
 
         try {
             // === validation client ===
@@ -124,8 +128,8 @@ export default function Registration() {
     const verifyUser = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        setErrorsList([]);
-        setErrorsType([]);
+        resetErrors();
+
         try {
             // === validation client ===
             const newOtpUser = await userVerifyOtpSchema.validate(otpUser, {
@@ -163,7 +167,7 @@ export default function Registration() {
             {step === 'first' && (
                 <>
                     <Chip
-                        className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-xl"
+                        className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6"
                         color="primary"
                     >
                         Поля со звездочкой обязательны
