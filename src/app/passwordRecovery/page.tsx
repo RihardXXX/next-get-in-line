@@ -1,5 +1,5 @@
 'use client';
-import { FormEvent, useEffect } from 'react';
+import { FormEvent } from 'react';
 import useSWRMutation from 'swr/mutation';
 import { Input, Chip, Button } from '@nextui-org/react';
 import Wrap from '@/components/base/wrap';
@@ -27,12 +27,14 @@ export default function PasswordRecovery() {
     const { checkError, errorsType, setErrorsType, errorsList, setErrorsList } =
         useErrorCheck();
 
-    const router = useRouter();
-
-    const { getUserInfo } = useAuthStore();
-
     // email login recovery
     const [email, setEmail] = useState('');
+
+    const router = useRouter();
+
+    const onMainPage = () => {
+        router.push('/');
+    };
 
     const emailHandler = async (
         e: FormEvent<HTMLInputElement>,
@@ -48,15 +50,13 @@ export default function PasswordRecovery() {
 
     const urlRecoveryPassword = authUrls.getRecoveryPassword();
 
-    // send data for register
+    // send data for send link on email for change password
     // useSWR + мутация-подобное API, но запрос не запускается автоматически.
     // данные не определены, пока не будет вызван триггер
-    // const { trigger: triggerLogin } = useSWRMutation(urlLogin, authUserFetcher);
-    //
-    // const { trigger: triggerVerify } = useSWRMutation(
-    //     urlVerify,
-    //     authUserFetcher,
-    // );
+    const { trigger: triggerSendLinkOnEmail } = useSWRMutation(
+        urlRecoveryPassword,
+        authUserFetcher,
+    );
 
     const resetErrors = () => {
         setErrorsList([]);
@@ -80,29 +80,15 @@ export default function PasswordRecovery() {
             );
 
             setDisabledInput(true);
-            // const res = await triggerLogin(user);
-            //
-            // setSecondStepText(res.message);
-            // setStep('second');
-            // localStorage.setItem('email', login.email);
+            const res = await triggerSendLinkOnEmail({ email });
+            setSecondStepText(res.message);
+            setStep('second');
         } catch (e) {
             checkError(e);
         } finally {
             setDisabledInput(false);
         }
     };
-
-    // на втором шаге заполняем поле почты автоматически
-    // useEffect(() => {
-    //     if (step === 'second') {
-    //         const emailStorage = localStorage.getItem('email') || '';
-    //
-    //         setOtpUser((prevOtpUser) => ({
-    //             ...prevOtpUser,
-    //             email: login.email || emailStorage,
-    //         }));
-    //     }
-    // }, [step, login.email]);
 
     return (
         <Wrap>
@@ -174,6 +160,28 @@ export default function PasswordRecovery() {
                             </div>
                         )}
                     </form>
+                </>
+            )}
+
+            {step === 'second' && (
+                <>
+                    {!!secondStepText && (
+                        <Chip
+                            className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-xl text-wrap h-auto"
+                            color="primary"
+                            radius="sm"
+                        >
+                            {secondStepText}
+                        </Chip>
+                    )}
+                    <Button
+                        className="!block mt-8 !w-4/6 h-16 bg-zinc-900 font-bold !text-slate-300 mb-4 ml-auto mr-auto"
+                        size="lg"
+                        isLoading={false}
+                        onClick={onMainPage}
+                    >
+                        на главную
+                    </Button>
                 </>
             )}
         </Wrap>

@@ -2,6 +2,7 @@ import {
     UserRegisterInterface,
     UserAuthorizationInterface,
     UserVerifyOtpInterface,
+    PasswordRecoveryInterface,
 } from '@/interfaces/users';
 
 const fetcher = (...args: Parameters<typeof fetch>) =>
@@ -13,12 +14,13 @@ const fetcher = (...args: Parameters<typeof fetch>) =>
     }) as Promise<void>;
 
 // fetcher for register user
-type user =
+type baseType =
     | UserAuthorizationInterface
     | UserRegisterInterface
-    | UserVerifyOtpInterface;
+    | UserVerifyOtpInterface
+    | PasswordRecoveryInterface;
 
-async function authUserFetcher(url: string, { arg }: { arg: user }) {
+async function authUserFetcher(url: string, { arg }: { arg: baseType }) {
     const res = await fetch(url, {
         method: 'POST',
         headers: {
