@@ -15,6 +15,14 @@ export interface UserVerifyOtpInterface {
     otp: string | number;
 }
 
-export interface PasswordRecoveryInterface {
+export interface EmailRecoveryInterface {
     email: string;
+}
+
+export interface PasswordRecoveryInterface {
+    password: string;
+}
+
+export interface SlugActiveModeRecoveryInterface {
+    slug: string | string[];
 }

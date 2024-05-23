@@ -3,6 +3,8 @@ import {
     UserAuthorizationInterface,
     UserVerifyOtpInterface,
     PasswordRecoveryInterface,
+    EmailRecoveryInterface,
+    SlugActiveModeRecoveryInterface,
 } from '@/interfaces/users';
 
 const fetcher = (...args: Parameters<typeof fetch>) =>
@@ -18,7 +20,9 @@ type baseType =
     | UserAuthorizationInterface
     | UserRegisterInterface
     | UserVerifyOtpInterface
-    | PasswordRecoveryInterface;
+    | PasswordRecoveryInterface
+    | EmailRecoveryInterface
+    | SlugActiveModeRecoveryInterface;
 
 async function authUserFetcher(url: string, { arg }: { arg: baseType }) {
     const res = await fetch(url, {

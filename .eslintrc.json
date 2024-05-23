@@ -1,6 +1,7 @@
 {
   "extends": ["next/core-web-vitals", "prettier"],
   "rules": {
+    "react-hooks/exhaustive-deps": "off",
     "indent": ["error", 4],
     "quotes": ["error", "single"],
     "semi": ["error", "always"],

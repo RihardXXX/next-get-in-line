@@ -1,10 +1,13 @@
 import { object, ObjectSchema, string } from 'yup';
-import { PasswordRecoveryInterface } from '@/interfaces/users';
+import {
+    PasswordRecoveryInterface,
+    EmailRecoveryInterface,
+} from '@/interfaces/users';
 import { textRequired } from '@/utils/common';
 
 function useClientRecoveryPasswordValidation() {
     // схема валидации в библиотеке
-    const recoveryPasswordAuthorizationSchema: ObjectSchema<PasswordRecoveryInterface> =
+    const recoveryEmailAuthorizationSchema: ObjectSchema<EmailRecoveryInterface> =
         object({
             email: string()
                 .trim()
@@ -12,7 +15,15 @@ function useClientRecoveryPasswordValidation() {
                 .required(() => textRequired('почта')),
         });
 
+    const recoveryPasswordAuthorizationSchema: ObjectSchema<PasswordRecoveryInterface> =
+        object({
+            password: string()
+                .min(8, 'пароль должен состоять более 8 символов')
+                .required(() => textRequired('пароль')),
+        });
+
     return {
+        recoveryEmailAuthorizationSchema,
         recoveryPasswordAuthorizationSchema,
     };
 }

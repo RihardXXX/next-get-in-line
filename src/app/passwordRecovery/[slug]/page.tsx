@@ -1,5 +1,5 @@
 'use client';
-import { FormEvent } from 'react';
+import { FormEvent, useEffect, useCallback } from 'react';
 import useSWRMutation from 'swr/mutation';
 import { Input, Chip, Button } from '@nextui-org/react';
 import Wrap from '@/components/base/wrap';
@@ -7,52 +7,75 @@ import { useState } from 'react';
 import { authUrls } from '@/api/urls';
 import { authUserFetcher } from '@/api/swr';
 import DeleteBtnForInput from '@/components/ui/DeleteBtnForInput';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import useClientRecoveryPasswordValidation from '@/validation/useClientRecoveryPasswordValidation';
 import useErrorCheck from '@/validation/useErrorCheck';
-import { useAuthStore } from '@/stores/useAuthStore';
 
-type step = 'first' | 'second';
-// first стартовый шаг вводя почты для восстановления
-// second об уведомлении пользователя о том, что на его почту отправлено сообщение
+type step = 'first' | 'second' | 'third';
+// first заполнение поля ввода пароля
+// second уведомление о том, что пароль сменили
 
 export default function PasswordRecovery() {
     const [disabledInput, setDisabledInput] = useState(false);
     const [step, setStep] = useState<step>('first');
     const [secondStepText, setSecondStepText] = useState('');
 
-    const { recoveryEmailAuthorizationSchema } =
+    const { recoveryPasswordAuthorizationSchema } =
         useClientRecoveryPasswordValidation();
 
     const { checkError, errorsType, setErrorsType, errorsList, setErrorsList } =
         useErrorCheck();
 
-    // email login recovery
-    const [email, setEmail] = useState('');
+    // password for change
+    const [password, setPassword] = useState('');
 
     const router = useRouter();
 
-    const onMainPage = () => {
-        router.push('/');
+    const params = useParams();
+
+    // first render fetch slug for change password = mode
+    useEffect(() => {
+        if (!params.slug) {
+            return;
+        }
+
+        setActiveModeChangePassword(params.slug)
+            .then(() => {
+                setStep('second');
+            })
+            .catch(() => {
+                setStep('first');
+            });
+    }, []);
+
+    const onAuthorizationPage = () => {
+        router.push('/authorization');
     };
 
-    const emailHandler = async (e: FormEvent<HTMLInputElement>) => {
+    const passwordHandler = async (e: FormEvent<HTMLInputElement>) => {
         const value = e.currentTarget.value.trim();
-        setEmail(value);
+        setPassword(value);
     };
 
-    const clearInputClickIcon = (key: string) => {
-        setEmail('');
+    const clearInputClickIcon = () => {
+        setPassword('');
     };
 
-    const urlRecoveryPassword = authUrls.getRecoveryPassword();
+    const urlRecoveryPassword = authUrls.getChangePassword();
 
     // send data for send link on email for change password
     // useSWR + мутация-подобное API, но запрос не запускается автоматически.
     // данные не определены, пока не будет вызван триггер
-    const { trigger: triggerSendLinkOnEmail } = useSWRMutation(
+    const { trigger: triggerChangePassword } = useSWRMutation(
         urlRecoveryPassword,
         authUserFetcher,
+    );
+
+    const setActiveModeChangePassword = useCallback(
+        (slug: string | string[]) => {
+            return triggerChangePassword({ slug });
+        },
+        [triggerChangePassword],
     );
 
     const resetErrors = () => {
@@ -60,54 +83,64 @@ export default function PasswordRecovery() {
         setErrorsType([]);
     };
 
-    const loginUser = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        resetErrors();
-
-        try {
-            // === validation client ===
-            const user = await recoveryEmailAuthorizationSchema.validate(
-                {
-                    email,
-                },
-                {
-                    abortEarly: false,
-                },
-            );
-
-            setDisabledInput(true);
-            const res = await triggerSendLinkOnEmail({ email });
-            setSecondStepText(res.message);
-            setStep('second');
-        } catch (e) {
-            checkError(e);
-        } finally {
-            setDisabledInput(false);
-        }
-    };
+    // const loginUser = async (event: FormEvent<HTMLFormElement>) => {
+    //     event.preventDefault();
+    //
+    //     resetErrors();
+    //
+    //     try {
+    //         // === validation client ===
+    //         // const user = await recoveryPasswordAuthorizationSchema.validate(
+    //         //     {
+    //         //         email,
+    //         //     },
+    //         //     {
+    //         //         abortEarly: false,
+    //         //     },
+    //         // );
+    //
+    //         setDisabledInput(true);
+    //         // const res = await triggerSendLinkOnEmail({ email });
+    //         // setSecondStepText(res.message);
+    //         // setStep('second');
+    //     } catch (e) {
+    //         checkError(e);
+    //     } finally {
+    //         setDisabledInput(false);
+    //     }
+    // };
 
     return (
         <Wrap>
             <div className="flex justify-center items-center h-20 bg-zinc-900">
                 <h1 className="text-2xl font-bold !text-slate-300">
-                    Восстановление пароля
+                    Смена пароля
                 </h1>
             </div>
 
             {step === 'first' && (
+                <Chip
+                    className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6 text-xl text-wrap h-auto"
+                    color="primary"
+                    radius="sm"
+                >
+                    ссылка не действительна. Вы не можете сменить пароль
+                </Chip>
+            )}
+
+            {step === 'second' && (
                 <>
                     <Chip
                         className="mt-4 !static !max-w-full !flex text-center ml-2 mr-2 p-6"
                         color="primary"
                     >
-                        Поля со звездочкой обязательны
+                        введите новый пароль
                     </Chip>
 
                     <form
                         action=""
                         className="w-full pl-2 pr-2 mt-4"
-                        onSubmit={loginUser}
+                        onSubmit={() => {}}
                     >
                         <Input
                             isDisabled={disabledInput}
@@ -115,22 +148,20 @@ export default function PasswordRecovery() {
                             label="* почта"
                             className="w-full mt-4"
                             size="lg"
-                            value={email}
+                            value={password}
                             color={
                                 errorsType.includes('email')
                                     ? 'danger'
                                     : undefined
                             }
                             endContent={
-                                !!email.length && (
+                                !!password.length && (
                                     <DeleteBtnForInput
-                                        onClick={() =>
-                                            clearInputClickIcon('email')
-                                        }
+                                        onClick={() => clearInputClickIcon()}
                                     />
                                 )
                             }
-                            onInput={(e) => emailHandler(e)}
+                            onInput={(e) => passwordHandler(e)}
                         />
 
                         <Button
@@ -139,7 +170,7 @@ export default function PasswordRecovery() {
                             isLoading={false}
                             type={'submit'}
                         >
-                            восстановить пароль
+                            отправить новый пароль
                         </Button>
 
                         {!!errorsList.length && (
@@ -160,7 +191,7 @@ export default function PasswordRecovery() {
                 </>
             )}
 
-            {step === 'second' && (
+            {step === 'third' && (
                 <>
                     {!!secondStepText && (
                         <Chip
@@ -175,9 +206,9 @@ export default function PasswordRecovery() {
                         className="!block mt-8 !w-4/6 h-16 bg-zinc-900 font-bold !text-slate-300 mb-4 ml-auto mr-auto"
                         size="lg"
                         isLoading={false}
-                        onClick={onMainPage}
+                        onClick={onAuthorizationPage}
                     >
-                        на главную
+                        на страницу авторизации
                     </Button>
                 </>
             )}
