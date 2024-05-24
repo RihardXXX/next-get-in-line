@@ -10,15 +10,23 @@ import DeleteBtnForInput from '@/components/ui/DeleteBtnForInput';
 import { useRouter, useParams } from 'next/navigation';
 import useClientRecoveryPasswordValidation from '@/validation/useClientRecoveryPasswordValidation';
 import useErrorCheck from '@/validation/useErrorCheck';
+import { FaEye } from 'react-icons/fa';
+import { IoEyeOffSharp } from 'react-icons/io5';
 
 type step = 'first' | 'second' | 'third';
 // first заполнение поля ввода пароля
 // second уведомление о том, что пароль сменили
 
 export default function PasswordRecovery() {
+    const [isVisiblePassword, setIsVisiblePassword] = useState(false);
+    const [isVisiblePasswordRepeat, setIsVisiblePasswordRepeat] =
+        useState(false);
     const [disabledInput, setDisabledInput] = useState(false);
     const [step, setStep] = useState<step>('first');
     const [secondStepText, setSecondStepText] = useState('');
+    // password for change
+    const [password, setPassword] = useState('');
+    const [repeatPassword, setRepeatPassword] = useState('');
 
     const { recoveryPasswordAuthorizationSchema } =
         useClientRecoveryPasswordValidation();
@@ -26,12 +34,14 @@ export default function PasswordRecovery() {
     const { checkError, errorsType, setErrorsType, errorsList, setErrorsList } =
         useErrorCheck();
 
-    // password for change
-    const [password, setPassword] = useState('');
-
     const router = useRouter();
 
     const params = useParams();
+
+    const toggleVisibilityPassword = () =>
+        setIsVisiblePassword(!isVisiblePassword);
+    const toggleVisibilityRepeatPassword = () =>
+        setIsVisiblePasswordRepeat(!isVisiblePasswordRepeat);
 
     // first render fetch slug for change password = mode
     useEffect(() => {
@@ -44,7 +54,8 @@ export default function PasswordRecovery() {
                 setStep('second');
             })
             .catch(() => {
-                setStep('first');
+                // setStep('first');
+                setStep('second');
             });
     }, []);
 
@@ -52,13 +63,24 @@ export default function PasswordRecovery() {
         router.push('/authorization');
     };
 
-    const passwordHandler = async (e: FormEvent<HTMLInputElement>) => {
+    const inputHandler = async (
+        e: FormEvent<HTMLInputElement>,
+        key: 'password' | 'repeatPassword',
+    ) => {
         const value = e.currentTarget.value.trim();
-        setPassword(value);
+        if (key === 'password') {
+            setPassword(value);
+        } else {
+            setRepeatPassword(value);
+        }
     };
 
-    const clearInputClickIcon = () => {
-        setPassword('');
+    const clearInputClickIcon = (key: 'password' | 'repeatPassword') => {
+        if (key === 'password') {
+            setPassword('');
+        } else {
+            setRepeatPassword('');
+        }
     };
 
     const urlRecoveryPassword = authUrls.getChangePassword();
@@ -83,32 +105,41 @@ export default function PasswordRecovery() {
         setErrorsType([]);
     };
 
-    // const loginUser = async (event: FormEvent<HTMLFormElement>) => {
-    //     event.preventDefault();
-    //
-    //     resetErrors();
-    //
-    //     try {
-    //         // === validation client ===
-    //         // const user = await recoveryPasswordAuthorizationSchema.validate(
-    //         //     {
-    //         //         email,
-    //         //     },
-    //         //     {
-    //         //         abortEarly: false,
-    //         //     },
-    //         // );
-    //
-    //         setDisabledInput(true);
-    //         // const res = await triggerSendLinkOnEmail({ email });
-    //         // setSecondStepText(res.message);
-    //         // setStep('second');
-    //     } catch (e) {
-    //         checkError(e);
-    //     } finally {
-    //         setDisabledInput(false);
-    //     }
-    // };
+    const changePassword = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        resetErrors();
+
+        try {
+            // проверка чтобы в обеих полях данные совпадали
+            if (password !== repeatPassword) {
+                // console.log(112)
+                throw new Error(
+                    'Поле ввода нового пароля и поле повторить пароль должны совпадать',
+                );
+            }
+
+            // === validation client ===
+            const user = await recoveryPasswordAuthorizationSchema.validate(
+                {
+                    password,
+                },
+                {
+                    abortEarly: false,
+                },
+            );
+
+            setDisabledInput(true);
+            const res = await triggerChangePassword({ password });
+            // setSecondStepText(res.message);
+            // setStep('second');
+        } catch (e) {
+            // console.log('dd')
+            checkError(e);
+        } finally {
+            setDisabledInput(false);
+        }
+    };
 
     return (
         <Wrap>
@@ -140,28 +171,84 @@ export default function PasswordRecovery() {
                     <form
                         action=""
                         className="w-full pl-2 pr-2 mt-4"
-                        onSubmit={() => {}}
+                        onSubmit={changePassword}
                     >
                         <Input
                             isDisabled={disabledInput}
-                            type="email"
-                            label="* почта"
+                            type={isVisiblePassword ? 'text' : 'password'}
+                            label="* новый пароль"
                             className="w-full mt-4"
                             size="lg"
                             value={password}
+                            endContent={
+                                <>
+                                    <button
+                                        className="focus:outline-none h-full {}"
+                                        type="button"
+                                        onClick={toggleVisibilityPassword}
+                                    >
+                                        {isVisiblePassword ? (
+                                            <FaEye className="text-2xl text-default-400 pointer-events-none" />
+                                        ) : (
+                                            <IoEyeOffSharp className="text-2xl text-default-400 pointer-events-none" />
+                                        )}
+                                    </button>
+                                    {!!password && (
+                                        <DeleteBtnForInput
+                                            className="ml-4"
+                                            onClick={() =>
+                                                clearInputClickIcon('password')
+                                            }
+                                        />
+                                    )}
+                                </>
+                            }
                             color={
-                                errorsType.includes('email')
+                                errorsType.includes('password')
                                     ? 'danger'
                                     : undefined
                             }
+                            onInput={(e) => inputHandler(e, 'password')}
+                        />
+
+                        <Input
+                            isDisabled={disabledInput}
+                            type={isVisiblePasswordRepeat ? 'text' : 'password'}
+                            label="* повторите новый пароль"
+                            className="w-full mt-4"
+                            size="lg"
+                            value={repeatPassword}
                             endContent={
-                                !!password.length && (
-                                    <DeleteBtnForInput
-                                        onClick={() => clearInputClickIcon()}
-                                    />
-                                )
+                                <>
+                                    <button
+                                        className="focus:outline-none h-full {}"
+                                        type="button"
+                                        onClick={toggleVisibilityRepeatPassword}
+                                    >
+                                        {isVisiblePasswordRepeat ? (
+                                            <FaEye className="text-2xl text-default-400 pointer-events-none" />
+                                        ) : (
+                                            <IoEyeOffSharp className="text-2xl text-default-400 pointer-events-none" />
+                                        )}
+                                    </button>
+                                    {!!repeatPassword && (
+                                        <DeleteBtnForInput
+                                            className="ml-4"
+                                            onClick={() =>
+                                                clearInputClickIcon(
+                                                    'repeatPassword',
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </>
                             }
-                            onInput={(e) => passwordHandler(e)}
+                            color={
+                                errorsType.includes('password')
+                                    ? 'danger'
+                                    : undefined
+                            }
+                            onInput={(e) => inputHandler(e, 'repeatPassword')}
                         />
 
                         <Button
