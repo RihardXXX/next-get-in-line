@@ -15,7 +15,7 @@ interface AuthStateInterface {
     user: {} | UserInterface;
     setIsLoggedIn: (status: boolean) => void;
     setToken: (token: string) => void;
-    getUserInfo: () => Promise<void>;
+    getInfoAboutTheUser: () => Promise<void>;
 }
 
 const useAuthStore = create<AuthStateInterface>()(
@@ -31,7 +31,7 @@ const useAuthStore = create<AuthStateInterface>()(
                 setToken: (token: string) => {
                     set((state) => ({ ...state, token }));
                 },
-                getUserInfo: async () => {
+                getInfoAboutTheUser: async () => {
                     const url = authUrls.getUserInfoUrl();
 
                     try {

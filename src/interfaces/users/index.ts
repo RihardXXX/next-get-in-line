@@ -23,6 +23,7 @@ export interface PasswordRecoveryInterface {
     password: string;
 }
 
-export interface SlugActiveModeRecoveryInterface {
-    slug: string | string[];
+export interface ActiveModeRecoveryInterface {
+    _id: string;
+    otp: string;
 }

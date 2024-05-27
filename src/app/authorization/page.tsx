@@ -23,7 +23,7 @@ type step = 'first' | 'second' | 'last';
 // second шаг ввода одноразового пароля
 // last шаг на котором покажется страница, что одноразовый пароль введен успешно и редирект в личный кабинет
 
-export default function Registration() {
+export default function Authorization() {
     const [isVisiblePassword, setIsVisiblePassword] = useState(false);
     const [disabledInput, setDisabledInput] = useState(false);
     const [step, setStep] = useState<step>('first');
@@ -37,7 +37,7 @@ export default function Registration() {
 
     const router = useRouter();
 
-    const { getUserInfo } = useAuthStore();
+    const { getInfoAboutTheUser } = useAuthStore();
 
     // first login and password state
     const [login, setLogin] = useState({
@@ -140,8 +140,8 @@ export default function Registration() {
 
             const res = await triggerVerify(newOtpUser);
 
-            setStep('last');
-            await getUserInfo(); // fetch user info if cookie token set backend
+            console.log('res: ', res);
+            await getInfoAboutTheUser();
             router.push('/personal');
         } catch (e) {
             checkError(e);
@@ -337,16 +337,18 @@ export default function Registration() {
                 </>
             )}
 
-            <div className="fixed left-0 bottom-20 w-full pl-2 pr-2">
-                <Button
-                    className="!block mt-8 w-full h-16 bg-zinc-900 font-bold !text-slate-300 mb-4"
-                    size="lg"
-                    isLoading={false}
-                    onClick={passwordRecoveryPage}
-                >
-                    забыли пароль
-                </Button>
-            </div>
+            {step === 'first' && (
+                <div className="fixed left-0 bottom-20 w-full pl-2 pr-2">
+                    <Button
+                        className="!block mt-8 w-full h-16 bg-zinc-900 font-bold !text-slate-300 mb-4"
+                        size="lg"
+                        isLoading={false}
+                        onClick={passwordRecoveryPage}
+                    >
+                        забыли пароль
+                    </Button>
+                </div>
+            )}
         </Wrap>
     );
 }

@@ -12,6 +12,7 @@ import useClientRecoveryPasswordValidation from '@/validation/useClientRecoveryP
 import useErrorCheck from '@/validation/useErrorCheck';
 import { FaEye } from 'react-icons/fa';
 import { IoEyeOffSharp } from 'react-icons/io5';
+import { ActiveModeRecoveryInterface } from '@/interfaces/users';
 
 type step = 'first' | 'second' | 'third';
 // first заполнение поля ввода пароля
@@ -49,13 +50,14 @@ export default function PasswordRecovery() {
             return;
         }
 
-        setActiveModeChangePassword(params.slug)
+        const [_id, otp] = (params.slug as string).split('-') as string[];
+
+        setActiveModeChangePassword({ _id, otp })
             .then(() => {
                 setStep('second');
             })
             .catch(() => {
-                // setStep('first');
-                setStep('second');
+                setStep('first');
             });
     }, []);
 
@@ -94,8 +96,8 @@ export default function PasswordRecovery() {
     );
 
     const setActiveModeChangePassword = useCallback(
-        (slug: string | string[]) => {
-            return triggerChangePassword({ slug });
+        ({ _id, otp }: ActiveModeRecoveryInterface) => {
+            return triggerChangePassword({ _id, otp });
         },
         [triggerChangePassword],
     );
