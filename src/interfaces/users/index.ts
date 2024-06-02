@@ -27,3 +27,8 @@ export interface ActiveModeRecoveryInterface {
     _id: string;
     otp: string;
 }
+
+export interface NewPasswordRecoveryInterface {
+    _id: string;
+    password: string;
+}

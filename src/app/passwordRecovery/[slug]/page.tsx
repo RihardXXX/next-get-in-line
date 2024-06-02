@@ -55,6 +55,7 @@ export default function PasswordRecovery() {
         setActiveModeChangePassword({ _id, otp })
             .then(() => {
                 setStep('second');
+                localStorage.setItem('_id', _id);
             })
             .catch(() => {
                 setStep('first');
@@ -86,12 +87,19 @@ export default function PasswordRecovery() {
     };
 
     const urlRecoveryPassword = authUrls.getChangePassword();
+    const urlNewPassword = authUrls.getNewPassword();
 
     // send data for send link on email for change password
     // useSWR + мутация-подобное API, но запрос не запускается автоматически.
     // данные не определены, пока не будет вызван триггер
     const { trigger: triggerChangePassword } = useSWRMutation(
         urlRecoveryPassword,
+        authUserFetcher,
+    );
+
+    // для смены пароля после переключения на режим смены пароля
+    const { trigger: triggerNewPassword } = useSWRMutation(
+        urlNewPassword,
         authUserFetcher,
     );
 
@@ -121,6 +129,8 @@ export default function PasswordRecovery() {
                 );
             }
 
+            const _id = localStorage.getItem('_id') || '';
+
             // === validation client ===
             const user = await recoveryPasswordAuthorizationSchema.validate(
                 {
@@ -132,9 +142,10 @@ export default function PasswordRecovery() {
             );
 
             setDisabledInput(true);
-            const res = await triggerChangePassword({ password });
-            // setSecondStepText(res.message);
-            // setStep('second');
+            const res = await triggerNewPassword({ _id, password });
+            setSecondStepText(res.message);
+            setStep('third');
+            localStorage.removeItem('_id');
         } catch (e) {
             // console.log('dd')
             checkError(e);

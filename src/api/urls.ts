@@ -37,6 +37,10 @@ class AuthUrls {
         return this.baseUrl + '/change-password';
     }
 
+    getNewPassword(): string {
+        return this.baseUrl + '/new-password';
+    }
+
     getConfirmUrl(confirmationCode: string): string {
         return this.baseUrl + `/confirm/${confirmationCode}`;
     }
