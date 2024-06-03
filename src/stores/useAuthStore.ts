@@ -57,6 +57,11 @@ const useAuthStore = create<AuthStateInterface>()(
                         }));
                     } catch (e) {
                         console.log('getUserInfo error', e);
+                        set((state) => ({
+                            ...state,
+                            isLoggedIn: false,
+                            user: {},
+                        }));
                     }
                 },
             }),
